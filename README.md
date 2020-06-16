@@ -1,24 +1,8 @@
-# todo
+# Aplicación de tareas pendientes
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Conceptos aprendidos
+ - Uso del keyword compute que detecta cambios en los datos eficientemente.
+ - Uso del keyword method.
+ - Directiva v-for y v-bind:key.
+ - Directiva v-model. Este binding permite actualizar datos en ambas direcciones.
+ 
