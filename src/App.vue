@@ -5,35 +5,53 @@
             <h1 id="title" class="text-center">Tareas de {{name}}</h1>
             <div class="row bg-info p-4 m-2">
                 <div class="col">
-                    <input v-model="newTodoItem" class="form-control"/>
+                    <input v-model="newTodoItem" class="form-control" placeholder="Escribe una tarea para empezar"
+                           v-on:keyup.13="addNewTodo"/>
                 </div>
                 <div class="col-2">
                     <button class="btn btn-primary" v-on:click="addNewTodo">Añadir</button>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col font-weight-bold m-3">Por hacer</div>
-                <div class="col font-weight-bold m-3">Finalizado</div>
-            </div>
-
-            <div class="row" v-for="filteredTask in filteredTasks" v-bind:key="filteredTask.action">
-                <div class="col">{{filteredTask.action}}</div>
-                <div class="col">
-                    <label>
-                        <input type="checkbox" v-model="filteredTask.done" class="form-check-inline"/>
-                    </label>
+            <div class="row" v-if="filteredTasks.length === 0">
+                <div class="col text-center font-weight-bold p-2">
+                    ¡Has acabado! Es hora de darse un respiro
                 </div>
             </div>
-
-
-            <div class="row p-2">
-                <div class="col text-center">
-                    <input type="checkbox" v-model="hideCompleted" class="form-check-input">
-                    <label class="form-check-label font-weight-bold">Ocultar finalizadas</label>
+            <template v-else>
+                <div class="row">
+                    <div class="col font-weight-bold m-3">Lista de tareas</div>
                 </div>
-            </div>
 
+                <div class="row p-3 border-bottom border-info" v-for="filteredTask in filteredTasks"
+                     v-bind:key="filteredTask.id">
+                    <div v-if="!filteredTask.editing" class="col">{{filteredTask.action}}</div>
+                    <div v-else class="col"><input type="text" v-model="filteredTask.action"
+                                                   v-on:keyup.13=toggleEditMode(filteredTask.id)></div>
+                    <div class="col">
+                        <template v-if="!filteredTask.done">
+                            <i class="fa fa-square-o" aria-hidden="true"
+                               v-on:click="toggleDoneStatus(filteredTask.id)"></i>
+                        </template>
+                        <template v-else>
+                            <i class="fa fa-check-square-o" aria-hidden="true"
+                               v-on:click="toggleDoneStatus(filteredTask.id)"></i>
+                        </template>
+                        <i class="fa fa-times ml-1" aria-hidden="true" v-on:click="deleteTask(filteredTask.id)"></i>
+                        <template v-if="!filteredTask.isArchived">
+                            <i class="fa fa-archive ml-1" aria-hidden="true"
+                               v-on:click="toggleArchivedStatus(filteredTask.id)"></i>
+                        </template>
+                        <template v-else>
+                            <i class="fa fa-file-excel-o ml-1" aria-hidden="true"
+                               v-on:click="toggleArchivedStatus(filteredTask.id)"></i>
+                        </template>
+                        <i class="fa fa-pencil ml-1" aria-hidden="true"
+                           v-on:click="toggleEditMode(filteredTask.id)"></i>
+
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -44,29 +62,61 @@
         data() {
             return {
                 "name": "Estefi",
-                "tasks": [
-                    {"action": "Ser la más bella", "done": true},
-                    {"action": "Sacar fotos preciosas en la montaña", "done": false},
-                    {"action": "Darse de alta en Malt.es", "done": false},
-                    {"action": "Hacer el portfolio", "done": false}
-                ],
-                hideCompleted: true,
+                "tasks": [],
                 newTodoItem: ""
-            }
+            };
         },
         computed: {
             filteredTasks() {
-                return this.hideCompleted ?
-                    this.tasks.filter(task => !task.done) : this.tasks
+                return this.tasks;
             }
         },
         methods: {
             addNewTodo() {
                 this.tasks.push({
+                    "id": this.tasks.length,
                     "action": this.newTodoItem,
-                    "done": false
+                    "done": false,
+                    "editing": false,
+                    "isArchived":false
                 });
-                this.newTodoItem = "";
+                localStorage.setItem("tasks", JSON.stringify(this.tasks))
+                this.newTodoItem = ""
+            },
+            toggleDoneStatus(taskId) {
+                for (let i = 0; i < this.tasks.length; i++) {
+                    if (this.tasks[i].id === taskId) {
+                        this.tasks[i].done = !this.tasks[i].done;
+                    }
+                }
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+            },
+            toggleArchivedStatus(taskId) {
+                for (let i = 0; i < this.tasks.length; i++) {
+                    if (this.tasks[i].id === taskId) {
+                        this.tasks[i].isArchived = !this.tasks[i].isArchived;
+                    }
+                }
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+            },
+            toggleEditMode(taskId) {
+                for (let i = 0; i < this.tasks.length; i++) {
+                    if (this.tasks[i].id === taskId) {
+                        this.tasks[i].editing = !this.tasks[i].editing;
+                    }
+                }
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+
+            },
+            deleteTask(taskId) {
+                this.tasks = this.tasks.filter(item => item.id !== taskId);
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+            }
+        },
+        created() {
+            const tasksStored = localStorage.getItem("tasks");
+            if (tasksStored != null) {
+                this.tasks = JSON.parse(tasksStored);
             }
         }
     }
@@ -88,7 +138,7 @@
         width: 10%;
     }
 
-    #title{
+    #title {
         display: inline;
     }
 
