@@ -13,8 +13,31 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col">
+                    <label>
+                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(0)"> Por hacer
+                    </label>
+                </div>
+                <div class="col">
+                    <label>
+                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(1)"> Todos
+                    </label>
+                </div>
+                <div class="col">
+                    <label>
+                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(2)"> Finalizados
+                    </label>
+                </div>
+                <div class="col">
+                    <label>
+                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(3)"> Archivados
+                    </label>
+                </div>
+            </div>
+
             <div class="row" v-if="filteredTasks.length === 0">
-                <div class="col text-center font-weight-bold p-2">
+                <div class="col text-secondary text-center font-weight-bold p-2">
                     ¡Has acabado! Es hora de darse un respiro
                 </div>
             </div>
@@ -63,12 +86,25 @@
             return {
                 "name": "Estefi",
                 "tasks": [],
-                newTodoItem: ""
+                "newTodoItem": "",
+                "showing": 1
             };
         },
         computed: {
             filteredTasks() {
-                return this.tasks;
+                switch (this.showing) {
+                    case 0:
+                        return this.tasks.filter( task => !(task.done || task.isArchived))
+                    case 1 :
+                        return this.tasks;
+                    case 2 :
+                        return this.tasks.filter(task => task.done);
+                    case 3 :
+                        return this.tasks.filter(task => task.isArchived);
+                    default:
+                        return this.tasks;
+                }
+
             }
         },
         methods: {
@@ -78,10 +114,13 @@
                     "action": this.newTodoItem,
                     "done": false,
                     "editing": false,
-                    "isArchived":false
+                    "isArchived": false
                 });
                 localStorage.setItem("tasks", JSON.stringify(this.tasks))
                 this.newTodoItem = ""
+            },
+            displayTodo(filterTag) {
+                this.showing = filterTag
             },
             toggleDoneStatus(taskId) {
                 for (let i = 0; i < this.tasks.length; i++) {
