@@ -16,7 +16,7 @@
             <div class="row">
                 <div class="col">
                     <label>
-                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(0)"> Por hacer
+                        <input type="radio" name="taskDisplayFilter" v-on:click="displayTodo(0)" checked> Por hacer
                     </label>
                 </div>
                 <div class="col">
@@ -87,7 +87,7 @@
                 "name": "Estefi",
                 "tasks": [],
                 "newTodoItem": "",
-                "showing": 1
+                "showing": 0
             };
         },
         computed: {
